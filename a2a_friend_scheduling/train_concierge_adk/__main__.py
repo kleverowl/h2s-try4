@@ -11,7 +11,7 @@ from a2a.types import (
     AgentSkill,
 )
 from agent import create_agent
-from agent_executor import KarleyAgentExecutor
+from agent_executor import TrainConciergeAgentExecutor
 from dotenv import load_dotenv
 from google.adk.artifacts import InMemoryArtifactService
 from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
@@ -33,7 +33,7 @@ class MissingAPIKeyError(Exception):
 def main():
     """Starts the agent server."""
     host = "localhost"
-    port = 10002
+    port = 10003
     try:
         # Check for API key only if Vertex AI is not configured
         if not os.getenv("GOOGLE_GENAI_USE_VERTEXAI") == "TRUE":
@@ -44,15 +44,15 @@ def main():
 
         capabilities = AgentCapabilities(streaming=True)
         skill = AgentSkill(
-            id="check_schedule",
-            name="Check Karley's Schedule",
-            description="Checks Karley's availability for a pickleball game on a given date.",
-            tags=["scheduling", "calendar"],
-            examples=["Is Karley free to play pickleball tomorrow?"],
+            id="book_train",
+            name="Book a train ticket",
+            description="Books a train ticket for a given route and date.",
+            tags=["booking", "travel"],
+            examples=["Book a train from London to Paris tomorrow."],
         )
         agent_card = AgentCard(
-            name="Karley Agent",
-            description="An agent that manages Karley's schedule for pickleball games.",
+            name="Train Concierge",
+            description="An agent that books train tickets.",
             url=f"http://{host}:{port}/",
             version="1.0.0",
             defaultInputModes=["text/plain"],
@@ -69,7 +69,7 @@ def main():
             session_service=InMemorySessionService(),
             memory_service=InMemoryMemoryService(),
         )
-        agent_executor = KarleyAgentExecutor(runner)
+        agent_executor = TrainConciergeAgentExecutor(runner)
 
         request_handler = DefaultRequestHandler(
             agent_executor=agent_executor,
