@@ -11,7 +11,7 @@ from a2a.types import (
     AgentSkill,
 )
 from agent import create_agent
-from agent_executor import KarleyAgentExecutor
+from agent_executor import FlightAgentExecutor
 from dotenv import load_dotenv
 from google.adk.artifacts import InMemoryArtifactService
 from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
@@ -33,9 +33,9 @@ class MissingAPIKeyError(Exception):
 def main():
     """Starts the agent server."""
     host = "localhost"
-    port = 10002
+    port = 10001
     try:
-        # Check for API key only if Vertex AI is not configured
+        # Check for API key only if not using Vertex AI
         if not os.getenv("GOOGLE_GENAI_USE_VERTEXAI") == "TRUE":
             if not os.getenv("GOOGLE_API_KEY"):
                 raise MissingAPIKeyError(
@@ -44,15 +44,15 @@ def main():
 
         capabilities = AgentCapabilities(streaming=True)
         skill = AgentSkill(
-            id="check_schedule",
-            name="Check Karley's Schedule",
-            description="Checks Karley's availability for a pickleball game on a given date.",
-            tags=["scheduling", "calendar"],
-            examples=["Is Karley free to play pickleball tomorrow?"],
+            id="search_flights",
+            name="Search for Flights",
+            description="Searches for available flights on a given route and date.",
+            tags=["booking", "flights"],
+            examples=["Find flights from SFO to LAX tomorrow"],
         )
         agent_card = AgentCard(
-            name="Karley Agent",
-            description="An agent that manages Karley's schedule for pickleball games.",
+            name="Flight Concierge",
+            description="An agent that finds and manages flight travel options.",
             url=f"http://{host}:{port}/",
             version="1.0.0",
             defaultInputModes=["text/plain"],
@@ -69,7 +69,7 @@ def main():
             session_service=InMemorySessionService(),
             memory_service=InMemoryMemoryService(),
         )
-        agent_executor = KarleyAgentExecutor(runner)
+        agent_executor = FlightAgentExecutor(runner)
 
         request_handler = DefaultRequestHandler(
             agent_executor=agent_executor,

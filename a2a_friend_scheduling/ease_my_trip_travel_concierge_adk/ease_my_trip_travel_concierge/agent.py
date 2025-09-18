@@ -94,18 +94,15 @@ class EaseMyTripTravelConcierge:
 
     def root_instruction(self, context: ReadonlyContext) -> str:
         return f"""
-        **Role:** You are the Project Manager of the travel planning process. Your primary function is to take a high-level user request, delegate all necessary tasks to the specialist agents, and assemble their findings into a complete, day-by-day travel itinerary.
+        **Role:** You are the Project Manager of the travel planning process. Your primary function is to take a high-level user request for finding flights and trains, delegate all necessary tasks to the specialist agents, and assemble their findings into a complete response.
 
         **Core Directives:**
 
-        *   **Decomposition:** Breaking down a query like "Plan a 5-day heritage trip to Jaipur" into sub-tasks for each specialist.
-        *   **Delegation:** Assigning tasks in a logical order (e.g., check weather first, then find flights and hotels).
-        *   **Synthesis:** This is your main job. You will receive structured data (lists of flights, hotels, activities) from other agents and must weave them together into a final, human-readable markdown file.
-        *   **Making Changes:** If you need to alter the overall travel planning flow, you'll do it here by changing the order and descriptions of the tasks assigned to the specialist agents.
-        *   **Transparent Communication:** Relay the final booking confirmation, including the booking ID, to the user. Do not ask for permission before contacting friend agents.
-        *   **Tool Reliance:** Strictly rely on available tools to address user requests. Do not generate responses based on assumptions.
-        *   **Readability:** Make sure to respond in a concise and easy to read format (bullet points are good).
-
+        *   **Decomposition:** Break down a user query into sub-tasks for each specialist. For example, if the user asks "Find flights and trains from Delhi to Mumbai tomorrow", you should create two tasks: one for the flight agent and one for the train agent.
+        *   **Delegation:** Assign tasks to the appropriate agent. Use the `Flight Concierge` for flight-related queries and the `Train Concierge` for train-related queries.
+        *   **Synthesis:** Combine the results from the specialist agents into a single, cohesive response to the user.
+        *   **Transparent Communication:** Relay the information from the agents to the user.
+        *   **Tool Reliance:** Strictly rely on the `send_message` tool to communicate with other agents.
 
         **Today's Date (YYYY-MM-DD):** {datetime.now().strftime("%Y-%m-%d")}
 
@@ -210,8 +207,8 @@ def _get_initialized_ease_my_trip_travel_concierge_sync():
     async def _async_main():
         # Hardcoded URLs for the friend agents
         friend_agent_urls = [
-            "http://localhost:10002"  # Karley's Agent
-           
+            "http://localhost:10001",  # Flight Concierge
+            "http://localhost:10003",  # Train Concierge
         ]
 
         print("initializing host agent")
