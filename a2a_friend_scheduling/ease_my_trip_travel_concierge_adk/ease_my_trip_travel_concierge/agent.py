@@ -25,18 +25,14 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.tools.tool_context import ToolContext
 from google.genai import types
 
-from .pickleball_tools import (
-    book_pickleball_court,
-    list_court_availabilities,
-)
 from .remote_agent_connection import RemoteAgentConnections
 
 load_dotenv()
 nest_asyncio.apply()
 
 
-class HostAgent:
-    """The Host agent."""
+class EaseMyTripTravelConcierge:
+    """The EaseMyTripTravelConcierge agent."""
 
     def __init__(
         self,
@@ -88,37 +84,28 @@ class HostAgent:
 
     def create_agent(self) -> Agent:
         return Agent(
-            model="gemini-2.5-flash",
-            name="Host_Agent",
+            name="ease_my_trip_travel_concierge",
             instruction=self.root_instruction,
-            description="This Host agent orchestrates scheduling pickleball with friends.",
+            description="Project Manager of the travel planning process.",
             tools=[
                 self.send_message,
-                book_pickleball_court,
-                list_court_availabilities,
             ],
         )
 
     def root_instruction(self, context: ReadonlyContext) -> str:
         return f"""
-        **Role:** You are the Host Agent, an expert scheduler for pickleball games. Your primary function is to coordinate with friend agents to find a suitable time to play and then book a court.
+        **Role:** You are the Project Manager of the travel planning process. Your primary function is to take a high-level user request, delegate all necessary tasks to the specialist agents, and assemble their findings into a complete, day-by-day travel itinerary.
 
         **Core Directives:**
 
-        *   **Initiate Planning:** When asked to schedule a game, first determine who to invite and the desired date range from the user.
-        *   **Task Delegation:** Use the `send_message` tool to ask each friend for their availability.
-            *   Frame your request clearly (e.g., "Are you available for pickleball between 2024-08-01 and 2024-08-03?").
-            *   Make sure you pass in the official name of the friend agent for each message request.
-        *   **Analyze Responses:** Once you have availability from all friends, analyze the responses to find common timeslots.
-        *   **Check Court Availability:** Before proposing times to the user, use the `list_court_availabilities` tool to ensure the court is also free at the common timeslots.
-        *   **Propose and Confirm:** Present the common, court-available timeslots to the user for confirmation.
-        *   **Book the Court:** After the user confirms a time, use the `book_pickleball_court` tool to make the reservation. This tool requires a `start_time` and an `end_time`.
+        *   **Decomposition:** Breaking down a query like "Plan a 5-day heritage trip to Jaipur" into sub-tasks for each specialist.
+        *   **Delegation:** Assigning tasks in a logical order (e.g., check weather first, then find flights and hotels).
+        *   **Synthesis:** This is your main job. You will receive structured data (lists of flights, hotels, activities) from other agents and must weave them together into a final, human-readable markdown file.
+        *   **Making Changes:** If you need to alter the overall travel planning flow, you'll do it here by changing the order and descriptions of the tasks assigned to the specialist agents.
         *   **Transparent Communication:** Relay the final booking confirmation, including the booking ID, to the user. Do not ask for permission before contacting friend agents.
         *   **Tool Reliance:** Strictly rely on available tools to address user requests. Do not generate responses based on assumptions.
         *   **Readability:** Make sure to respond in a concise and easy to read format (bullet points are good).
-        *   Each available agent represents a friend. So Bob_Agent represents Bob.
-        *   When asked for which friends are available, you should return the names of the available friends (aka the agents that are active).
-        *   When get
+
 
         **Today's Date (YYYY-MM-DD):** {datetime.now().strftime("%Y-%m-%d")}
 
@@ -217,8 +204,8 @@ class HostAgent:
         return resp
 
 
-def _get_initialized_host_agent_sync():
-    """Synchronously creates and initializes the HostAgent."""
+def _get_initialized_ease_my_trip_travel_concierge_sync():
+    """Synchronously creates and initializes the EaseMyTripTravelConcierge."""
 
     async def _async_main():
         # Hardcoded URLs for the friend agents
@@ -228,10 +215,10 @@ def _get_initialized_host_agent_sync():
         ]
 
         print("initializing host agent")
-        hosting_agent_instance = await HostAgent.create(
+        hosting_agent_instance = await EaseMyTripTravelConcierge.create(
             remote_agent_addresses=friend_agent_urls
         )
-        print("HostAgent initialized")
+        print("EaseMyTripTravelConcierge initialized")
         return hosting_agent_instance.create_agent()
 
     try:
@@ -239,12 +226,12 @@ def _get_initialized_host_agent_sync():
     except RuntimeError as e:
         if "asyncio.run() cannot be called from a running event loop" in str(e):
             print(
-                f"Warning: Could not initialize HostAgent with asyncio.run(): {e}. "
+                f"Warning: Could not initialize EaseMyTripTravelConcierge with asyncio.run(): {e}. "
                 "This can happen if an event loop is already running (e.g., in Jupyter). "
-                "Consider initializing HostAgent within an async function in your application."
+                "Consider initializing EaseMyTripTravelConcierge within an async function in your application."
             )
         else:
             raise
 
 
-root_agent = _get_initialized_host_agent_sync()
+root_agent = _get_initialized_ease_my_trip_travel_concierge_sync()
