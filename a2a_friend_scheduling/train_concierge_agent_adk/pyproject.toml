@@ -1,0 +1,25 @@
+[project]
+name = "train_concierge_agent"
+version = "0.1.0"
+description = "train_concierge_agent"
+authors = [
+    {name = "Google", email = "no-reply@google.com"},
+]
+dependencies = [
+    "google-adk-runtime",
+    "google-generativeai",
+    "python-dotenv",
+    "uvicorn",
+]
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+
+[tool.pdm]
+distribution = false
+[tool.pdm.scripts]
+start = "uvicorn a2a_friend_scheduling.train_concierge_agent_adk.agent_executor:agent_executor.app --port 10005"
+
+[tool.pyright]
+pythonVersion = "3.12"
+pythonPlatform = "Linux"
